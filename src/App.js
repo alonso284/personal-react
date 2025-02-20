@@ -8,7 +8,8 @@ import Button from './components/Button';
 import List from './components/List';
 import Add from './components/Add';
 import ResponsiveAppBar from './components/AppBar';
-import OAuthSignInPage from './components/LogIn';
+import LogIn from './pages/LogIn';
+import Home from './pages/Home';
 
 function App() {
 	// let [count, setCount] = useState(0);
@@ -26,16 +27,33 @@ function App() {
 		let newItems = items.filter(item => item.id !== id);
 		items = addItem(newItems);
 	}
+	let [session, setSession] = useState(null);
+	let login = (username, password) => {
+		console.log("login", username, password);
+		if(username === "admin" && password === "admin"){
+			setSession({ username: username });
+			return true;
+		}
+		else{
+			alert("Invalid username or password");
+			return false;
+		}
+	}
+	let logout = () => {
+		setSession(null);
+	}
+
+	
 	return <div>
 
 		<BrowserRouter>
-			<ResponsiveAppBar />
+			{ session && <ResponsiveAppBar setLogOut={logout}/>}
 			<Header />
 			<Routes>
-				<Route path="/login" element={<OAuthSignInPage />} />
-				<Route path="/add" element={<Add add={add} />} />
-				<Route path="/items" element={<List items={items} remove={remove}/>} />
-		
+				<Route path="/login" element={<LogIn login={login}/>} />
+				{ session && <Route path="/add" element={<Add add={add} />} /> }
+				{ session && <Route path="/items" element={<List items={items} remove={remove}/>} /> }
+				<Route path="/" element={<Home />} />
 			</Routes>
 			<Footer />
 		</BrowserRouter>
