@@ -13,6 +13,7 @@ import Home from "./pages/Home";
 
 function App() {
   // let [count, setCount] = useState(0);
+  const API_URL = process.env.REACT_APP_API_URL;
   let [token, setToken] = useState(null);
 
   let [items, addItem] = useState([
@@ -31,23 +32,20 @@ function App() {
   };
   let [session, setSession] = useState(null);
   let login = async (username, password) => {
-    const result = await fetch("http://localhost:3000/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ username, password }),
-    });
-    const data = await result.json();
-    console.log(data);
-    console.log("login", username, password);
+    try {
+      const result = await fetch(API_URL + "/login/", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
 
-    if (data.operation == true) {
+      const data = await result.json();
+      setSession(data.isLogin);
       setToken(data.token);
-      setSession({ username: username });
-      return true;
-    } else {
-      alert("Invalid username or password");
+      return data.isLogin;
+    } catch (e) {
+      console.error("Login error:", e);
+      setSession(false);
       return false;
     }
   };
@@ -57,6 +55,7 @@ function App() {
 
   return (
     <div>
+      {token && <p>Token: {token}</p>}
       <BrowserRouter>
         {session && <ResponsiveAppBar setLogOut={logout} />}
         <Header />
